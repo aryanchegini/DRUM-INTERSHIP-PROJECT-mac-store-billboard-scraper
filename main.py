@@ -1,17 +1,31 @@
 from mac_store_scraper import MacStoreScraper
 import openpyxl
 
-wb = openpyxl.load_workbook('M.A.C Holiday 21 - OOH V5 - BOOKED.xlsx')
-main_sheet = wb.get_sheet_by_name('ATLAS BOOKED SITE LIST')
-list_of_postcodes = []
-for cell in main_sheet['H']:
-    if cell.value != None:
-        list_of_postcodes.append(cell.value)
-        
-print(list_of_postcodes)
+
 
 class BillBoardFinder:
-    def __init__(self, path_to_excel_spdsheet:str='M.A.C Holiday 21 - OOH V5 - BOOKED.xlsx', sheet_name) -> None:
-        self.wb = openpyxl.load_workbook(path_to_excel_spdsheet)
-        self.main_sheet = main_sheet = wb.get_sheet_by_name('ATLAS BOOKED SITE LIST')
-        
+    def __init__(self) -> None:
+        self.wb = openpyxl.load_workbook('M.A.C Holiday 21 - OOH V5 - BOOKED.xlsx')
+        self.main_sheet = self.wb.get_sheet_by_name('ATLAS BOOKED SITE LIST')
+    
+    @property
+    def list_of_postcodes(self):
+        postcodes = []
+        for cell in self.main_sheet['H']:
+            if cell.value != None:
+                postcodes.append(cell.value)
+        return postcodes
+    
+    @property
+    def verify_postcode(self):
+        if self.bb_postcode in self.list_of_postcodes:
+            return True
+        elif self.bb_postcode not in self.list_of_postcodes:
+            return False
+
+            
+            
+    
+    
+bb = BillBoardFinder()
+print(bb.find_nearest_store())
