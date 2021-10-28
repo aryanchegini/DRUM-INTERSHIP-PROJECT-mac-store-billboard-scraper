@@ -14,7 +14,7 @@ import sys
 class MacStoreScraper:
     def __init__(self, address:str) -> None:
         self._website_link = 'https://www.maccosmetics.co.uk/stores'
-        self.address = " ".join(sys.argv[1:]) if len(sys.argv) > 1 else address
+        self.address = address
         self.s = Service(ChromeDriverManager().install())
         user_agent = 'Mozilla/5.0 (Macintosh; Intel Mac OS X 12_0_1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/95.0.4638.54 Safari/537.36'
         options = webdriver.ChromeOptions()
@@ -31,7 +31,8 @@ class MacStoreScraper:
         options.add_argument('--disable-dev-shm-usage')
         options.add_argument('--no-sandbox')
         self.driver = webdriver.Chrome(service=self.s, options=options)
-        
+        self.scraped = False
+
     @property      
     def store_info(self) -> str:
         self.driver.get(self._website_link)
@@ -45,19 +46,20 @@ class MacStoreScraper:
             get_store_details = WebDriverWait(self.driver, 10).until(EC.presence_of_element_located((By.XPATH, '/html/body/div[1]/div[2]/div/article/div/div/div[1]/div[2]/div[2]/div[2]/div/div[3]/table/tbody/tr[1]/td[2]/table/tbody/tr[2]/td')))
             store_details = get_store_details.text
             store_detail_rows = store_details.split('\n')
-            extracted_postcode = store_detail_rows[1].split(" ")
-            store_postcode = " ".join(extracted_postcode[3:])
             
             message = f'Your nearest store is {store_name}.\nIt is {store_detail_rows[9]} away.\nIt\'s address is {" ".join(store_detail_rows[:2])}.\nFeel free to give us a call at {store_detail_rows[2]}\nWe look forward to seeing you!'
-            return message, store_postcode
+            return message
         finally:
             self.driver.quit()
             
     def give_store_details(self) -> None:
-        message = self.store_info[0]
-        print(str(message))
+        message = self.store_info
+        return str(message)
     
     def give_store_postcode(self) -> str:
-        postcode = self.store_info[1]
+        message = self.store_info
+        message_rows = message.split('\n')
+        rows_withpostcode = message_rows[2].split(' ')
+        pc = f'{rows_withpostcode[len(rows_withpostcode) - 2]} {rows_withpostcode[len(rows_withpostcode) - 1]}'
+        postcode = pc.replace('.', '')
         return str(postcode)
-    
