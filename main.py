@@ -1,6 +1,7 @@
 from mac_store_scraper import MacStoreScraper
 import openpyxl
 import pandas
+import time
 
 #declare the list of postcodes here so that this script doesn't have to run 800 times
 wb = openpyxl.load_workbook('M.A.C Holiday 21 - OOH V5 - BOOKED.xlsx')
@@ -31,20 +32,28 @@ class BillBoardFinder:
 
     def find_postcode_nearest(self) -> str:
         scraper = MacStoreScraper(self.list_of_postcodes[self.index])
-        while not scraper.scraped:
-            try:
-                nearest_postcode = scraper.give_store_postcode()
-                scraper.scraped = True
-            except Exception:
-                pass
-        # nearest_postcode = scraper.give_store_postcode()
+        # scraper.scraped = False
+        # while not scraper.scraped:
+        #     try:
+        #         nearest_postcode = scraper.give_store_postcode()
+        #         scraper.scraped = True
+        #     except Exception:
+        #         time.sleep(10)
+        #         scraper.scraped = False
+        nearest_postcode = scraper.give_store_postcode()
         return nearest_postcode
 
     def insert_postcodes(self) -> None:
         nearest_postcodes = []
         for i in range(len(self.list_of_postcodes)):
+            scraped = False
             self.index = i
-            nearest_postcode = self.find_postcode_nearest()
+            while not scraped:
+                try:
+                    nearest_postcode = self.find_postcode_nearest()
+                    scraped = True
+                except:
+                    pass
             nearest_postcodes.append(nearest_postcode)
             #timing
             print(f'Index {self.index} ')

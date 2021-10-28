@@ -31,7 +31,6 @@ class MacStoreScraper:
         options.add_argument('--disable-dev-shm-usage')
         options.add_argument('--no-sandbox')
         self.driver = webdriver.Chrome(service=self.s, options=options)
-        self.scraped = False
 
     @property      
     def store_info(self) -> str:
