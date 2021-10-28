@@ -34,7 +34,6 @@ class MacStoreScraper:
 
     @property      
     def store_info(self) -> str:
-        self.driver.get(self._website_link)
         searchbox = self.driver.find_element(By.XPATH, '//*[@id="main_content"]/div[2]/div/article/div/div/div[1]/div[1]/div/div[1]/div/form/span/div[1]/input')
         searchbox.send_keys(self.address)
         searchbox.submit()
