@@ -1,7 +1,11 @@
 from mac_store_scraper import MacStoreScraper
 import openpyxl
-import pandas
+import pandas as pd
 import time
+import warnings
+
+#just to ignore annoying warnings
+warnings.simplefilter("ignore")
 
 #declare the list of postcodes here so that this script doesn't have to run 800 times
 wb = openpyxl.load_workbook('M.A.C Holiday 21 - OOH V5 - BOOKED.xlsx')
@@ -13,33 +17,17 @@ for cell in ws['H']:
 list_of_postcodes.pop(0)
 
 
-
 class BillBoardFinder:
-    def __init__(self, postcode_list:list = list_of_postcodes) -> None:
+    def __init__(self, postcode_list:list) -> None:
         self.excelfile = 'M.A.C Holiday 21 - OOH V5 - BOOKED.xlsx'
         self.wb = openpyxl.load_workbook(self.excelfile)
         self.main_sheet = self.wb['ATLAS BOOKED SITE LIST']
         self.index = 0
-        self.df = pandas.read_excel(self.excelfile)
+        self.df = pd.read_excel(self.excelfile)
         self.list_of_postcodes = postcode_list
-    
-    @property
-    def verify_postcode(self) -> bool:
-        if self.bb_postcode in self.list_of_postcodes:
-            return True
-        elif self.bb_postcode not in self.list_of_postcodes:
-            return False
 
     def find_postcode_nearest(self) -> str:
         scraper = MacStoreScraper(self.list_of_postcodes[self.index])
-        # scraper.scraped = False
-        # while not scraper.scraped:
-        #     try:
-        #         nearest_postcode = scraper.give_store_postcode()
-        #         scraper.scraped = True
-        #     except Exception:
-        #         time.sleep(10)
-        #         scraper.scraped = False
         nearest_postcode = scraper.give_store_postcode()
         return nearest_postcode
 
@@ -52,16 +40,14 @@ class BillBoardFinder:
                 try:
                     nearest_postcode = self.find_postcode_nearest()
                     scraped = True
-                except:
-                    pass
+                except Exception as exc:
+                    print(f'Looks like the program crashed:\n--> {str(exc)[:100]}\nre-running...')
+                    #allow the web crawlers memory to clear up
+                    time.sleep(1)
             nearest_postcodes.append(nearest_postcode)
-            #timing
-            print(f'Index {self.index} ')
+            print(f'Index {self.index}')
             print(nearest_postcode)
         self.df["Nearest M.A.C Store Postcode"] = nearest_postcodes
-        self.df.to_excel(r'./M.A.C Holiday 21 - OOH V5 - BOOKED - With Nearest Store Postcodes.xlsx', sheet_name='ATLAS BOOKED SITE LIST')
+        self.df.to_excel(r'./M.A.C Holiday 21 - OOH V5 - BOOKED - With Nearest Store Postcodes.xlsx', sheet_name='ATLAS BOOKED SITE LIST', index = False)
         return
-        
     
-test1 = BillBoardFinder(postcode_list=list_of_postcodes)
-test1.insert_postcodes()
