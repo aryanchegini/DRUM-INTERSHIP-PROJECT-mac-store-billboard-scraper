@@ -10,7 +10,7 @@ warnings.simplefilter("ignore")
 
 class BillBoardFinder:
     def __init__(self) -> None:
-        self.excelfile = 'M.A.C Holiday 21 - OOH V5 - BOOKED.xlsx'
+        self.excelfile = '../M.A.C Holiday 21 - OOH V5 - BOOKED.xlsx'
         self.workbook = openpyxl.load_workbook(self.excelfile)
         self.worksheet = self.workbook['ATLAS BOOKED SITE LIST']
         self.df = pd.read_excel(self.excelfile)
@@ -47,6 +47,6 @@ class BillBoardFinder:
             print(f'Index {self.index}')
             print(nearest_postcode)
         self.df["Nearest M.A.C Store Postcode"] = nearest_postcodes
-        self.df.to_excel(r'./M.A.C Holiday 21 - OOH V5 - BOOKED - With Nearest Store Postcodes.xlsx', sheet_name='ATLAS BOOKED SITE LIST', index = False)
+        self.df.to_excel(r'../M.A.C Holiday 21 - OOH V5 - BOOKED - With Nearest Store Postcodes.xlsx', sheet_name='ATLAS BOOKED SITE LIST', index = False)
         return
     
