@@ -4,42 +4,41 @@ import pandas as pd
 import time
 import warnings
 
-#just to ignore annoying warnings
+#just to ignore annoying deprecation warnings
 warnings.simplefilter("ignore")
-
-#declare the list of postcodes here so that this script doesn't have to run 800 times
-wb = openpyxl.load_workbook('M.A.C Holiday 21 - OOH V5 - BOOKED.xlsx')
-ws = wb['ATLAS BOOKED SITE LIST']
-list_of_postcodes = []
-for cell in ws['H']:
-    if cell.value != None:
-        list_of_postcodes.append(cell.value)
-list_of_postcodes.pop(0)
 
 
 class BillBoardFinder:
-    def __init__(self, postcode_list:list) -> None:
+    def __init__(self) -> None:
         self.excelfile = 'M.A.C Holiday 21 - OOH V5 - BOOKED.xlsx'
-        self.wb = openpyxl.load_workbook(self.excelfile)
-        self.main_sheet = self.wb['ATLAS BOOKED SITE LIST']
-        self.index = 0
+        self.workbook = openpyxl.load_workbook(self.excelfile)
+        self.worksheet = self.workbook['ATLAS BOOKED SITE LIST']
         self.df = pd.read_excel(self.excelfile)
-        self.list_of_postcodes = postcode_list
+        self.index = 0
 
-    def find_postcode_nearest(self) -> str:
-        scraper = MacStoreScraper(self.list_of_postcodes[self.index])
+    @property
+    def billboard_postcodes(self) -> list:
+        postcodes = []
+        for cell in self.worksheet['H']:
+            if cell.value != None:
+                postcodes.append(cell.value)
+        postcodes.pop(0)
+        return postcodes
+
+    def find_postcode_of_nearest(self) -> str:
+        scraper = MacStoreScraper(self.billboard_postcodes[self.index])
         nearest_postcode = scraper.give_store_postcode()
         return nearest_postcode
 
     def insert_postcodes(self) -> None:
         nearest_postcodes = []
-        for i in range(len(self.list_of_postcodes)):
-            scraped = False
+        for i in range(len(self.billboard_postcodes)):
+            is_scraped = False
             self.index = i
-            while not scraped:
+            while not is_scraped:
                 try:
-                    nearest_postcode = self.find_postcode_nearest()
-                    scraped = True
+                    nearest_postcode = self.find_postcode_of_nearest()
+                    is_scraped = True
                 except Exception as exc:
                     print(f'Looks like the program crashed:\n--> {str(exc)[:100]}\nre-running...')
                     #allow the web crawlers memory to clear up

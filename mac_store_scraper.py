@@ -1,6 +1,4 @@
 import webbrowser
-from bs4 import BeautifulSoup
-import requests
 from selenium import webdriver
 from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.common.by import By
@@ -8,14 +6,15 @@ from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.chrome.service import Service
 from webdriver_manager.chrome import ChromeDriverManager
-import sys
 
 
 class MacStoreScraper:
     def __init__(self, address:str) -> None:
         self._website_link = 'https://www.maccosmetics.co.uk/stores'
         self.address = address
-        self.s = Service(ChromeDriverManager().install())
+        ##driver setup
+        s = Service(ChromeDriverManager().install())
+        #setting up headless chrome
         user_agent = 'Mozilla/5.0 (Macintosh; Intel Mac OS X 12_0_1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/95.0.4638.54 Safari/537.36'
         options = webdriver.ChromeOptions()
         options.headless = True
@@ -30,10 +29,10 @@ class MacStoreScraper:
         options.add_argument('--disable-gpu')
         options.add_argument('--disable-dev-shm-usage')
         options.add_argument('--no-sandbox')
-        self.driver = webdriver.Chrome(service=self.s, options=options)
+        self.driver = webdriver.Chrome(service=s, options=options)
 
     @property      
-    def store_info(self) -> str:
+    def nearest_store_info(self) -> str:
         self.driver.get(self._website_link)
         searchbox = self.driver.find_element(By.XPATH, '//*[@id="main_content"]/div[2]/div/article/div/div/div[1]/div[1]/div/div[1]/div/form/span/div[1]/input')
         searchbox.send_keys(self.address)
@@ -52,11 +51,11 @@ class MacStoreScraper:
             self.driver.quit()
             
     def give_store_details(self) -> None:
-        message = self.store_info
+        message = self.nearest_store_info
         return str(message)
     
     def give_store_postcode(self) -> str:
-        message = self.store_info
+        message = self.nearest_store_info
         message_rows = message.split('\n')
         rows_withpostcode = message_rows[2].split(' ')
         pc = f'{rows_withpostcode[len(rows_withpostcode) - 2]} {rows_withpostcode[len(rows_withpostcode) - 1]}'
