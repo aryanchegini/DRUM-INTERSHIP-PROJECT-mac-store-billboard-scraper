@@ -31,7 +31,7 @@ class BillBoardFinder:
         return scraper
     
     def progress(self):
-        print(f'Operation {self.index} complete')
+        print(f'Operation {self.index + 1} complete')
 
     def find_postcode_of_nearest(self) -> str:
         nearest_postcode = self.scraper.give_store_postcode()
