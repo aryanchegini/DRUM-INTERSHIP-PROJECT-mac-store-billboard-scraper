@@ -67,6 +67,7 @@ class BillBoardFinder:
         for i in range(len(self.billboard_postcodes)):
             is_scraped = False
             self.index = i
+            # store_data = self.find_data_of_nearest()
             while not is_scraped:
                 try:
                     store_data = self.find_data_of_nearest()
@@ -74,11 +75,13 @@ class BillBoardFinder:
                 except Exception as exc:
                     print(f'The program crashed while attempting to scrape data:\n--> {str(exc)[:100]}\nre-running...')
                     time.sleep(1)
+                    
+                    
             data_rows = store_data.split('\n')
             #extracting store name
             namedot = ' '.join(data_rows[0].split(' ')[4:]) 
-            store_name = namedot.replace('.', '')
-            store_names.append(store_name)
+            name = namedot.replace('.', '')
+            store_names.append(name)
             #extracting postcode
             row_withpostcode = data_rows[2].split(' ')
             postcode = f'{row_withpostcode[len(row_withpostcode) - 2]} {row_withpostcode[len(row_withpostcode) - 1]}'
@@ -97,6 +100,11 @@ class BillBoardFinder:
             print(number)
             print(postcode)
             print(distance)
+        self.df['M.A.C Store Name'] = store_names
+        self.df['M.A.C Store Postcode'] = store_postcodes
+        self.df['M.A.C Store Tel Number'] = store_numbers
+        self.df['Distance Away'] = distances_away
+        self.df.to_excel(r'../M.A.C Billboard Data - w M.A.C Store Data.xlsx', index = False)
         return
     
     
