@@ -16,7 +16,7 @@ warnings.simplefilter("ignore")
 class MacStoreScraper:
     def __init__(self, address:str) -> None:
         self._website_link = 'https://www.maccosmetics.co.uk/stores'
-        self.address = address
+        self.address_given = address
         ##driver setup
         s = Service(ChromeDriverManager().install())
         #setting up headless chrome
@@ -40,32 +40,32 @@ class MacStoreScraper:
     def nearest_store_info(self) -> str:
         self.driver.get(self._website_link)
         searchbox = self.driver.find_element(By.XPATH, '//*[@id="main_content"]/div[2]/div/article/div/div/div[1]/div[1]/div/div[1]/div/form/span/div[1]/input')
-        searchbox.send_keys(self.address)
+        searchbox.send_keys(self.address_given)
         searchbox.submit()
         #ensuring the program doesnt crash
         is_scraped = False
         while not is_scraped:
             try:
-                get_store_name = WebDriverWait(self.driver, 10).until(EC.presence_of_element_located((By.XPATH, '/html/body/div[1]/div[2]/div/article/div/div/div[1]/div[2]/div[2]/div[2]/div/div[3]/table/tbody/tr[1]/td[2]/table/tbody/tr[1]/td[1]/h6[1]')))
-                store_name = get_store_name.text
-                get_store_details = WebDriverWait(self.driver, 10).until(EC.presence_of_element_located((By.XPATH, '/html/body/div[1]/div[2]/div/article/div/div/div[1]/div[2]/div[2]/div[2]/div/div[3]/table/tbody/tr[1]/td[2]/table/tbody/tr[2]/td')))
-                store_details = get_store_details.text
-                store_detail_rows = store_details.split('\n')
+                store_name_elem = WebDriverWait(self.driver, 10).until(EC.presence_of_element_located((By.XPATH, '/html/body/div[1]/div[2]/div/article/div/div/div[1]/div[2]/div[2]/div[2]/div/div[3]/table/tbody/tr[1]/td[2]/table/tbody/tr[1]/td[1]/h6[1]')))
+                store_name = store_name_elem.text
+                store_details_elem = WebDriverWait(self.driver, 10).until(EC.presence_of_element_located((By.XPATH, '/html/body/div[1]/div[2]/div/article/div/div/div[1]/div[2]/div[2]/div[2]/div/div[3]/table/tbody/tr[1]/td[2]/table/tbody/tr[2]/td')))
+                store_details = store_details_elem.text
+                store_details_rows = store_details.split('\n')
                 
-                message = f'Your nearest store is {store_name}.\nIt is {store_detail_rows[9]} away\nIt\'s address is {" ".join(store_detail_rows[:2])}\nFeel free to give us a call at {store_detail_rows[2]}\nWe look forward to seeing you!'
+                info = f'Your nearest store is {store_name}.\nIt is {store_details_rows[9]} away\nIt\'s address is {" ".join(store_details_rows[:2])}\nFeel free to give us a call at {store_details_rows[2]}\nWe look forward to seeing you!'
                 is_scraped = True
-                return message
+                return info
             except Exception as exc:
                 print(f'The program crashed while attempting to scrape data:\n--> {str(exc)[:100]}\nre-running...')
                 time.sleep(1)
                 
     def give_store_details(self) -> None:
-        message = self.nearest_store_info
-        return str(message)
+        details = self.nearest_store_info
+        return str(details)
     
     def give_store_postcode(self) -> str:
-        message = self.nearest_store_info
-        message_rows = message.split('\n')
-        rows_withpostcode = message_rows[2].split(' ')
-        postcode = f'{rows_withpostcode[len(rows_withpostcode) - 2]} {rows_withpostcode[len(rows_withpostcode) - 1]}'
+        details = self.nearest_store_info
+        details_rows = details.split('\n')
+        row_withpostcode = details_rows[2].split(' ')
+        postcode = f'{row_withpostcode[len(row_withpostcode) - 2]} {row_withpostcode[len(row_withpostcode) - 1]}'
         return str(postcode)

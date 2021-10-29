@@ -31,13 +31,13 @@ class BillBoardFinder:
         return scraper
     
     def progress(self):
-        print(f'Operation {self.index + 1} complete')
+        print(f'Row number {self.index + 1} complete')
 
     def find_postcode_of_nearest(self) -> str:
         nearest_postcode = self.scraper.give_store_postcode()
         return nearest_postcode
     
-    def find_data_of_nearest(self) -> str:
+    def find_details_of_nearest(self) -> str:
         nearest_store_data = self.scraper.give_store_details()
         return nearest_store_data
 
@@ -52,32 +52,35 @@ class BillBoardFinder:
         self.df.to_excel(r'../M.A.C Billboard Data - w Nearest Postcodes.xlsx', index = False)
         return
     
-    def insert_data(self, s_name:bool=True, s_postcode:bool=True, s_number:bool=True, s_distance_away:bool=True) -> None:
+    def insert_details(self, s_name:bool=True, s_postcode:bool=True, s_number:bool=True, s_distance_away:bool=True) -> None:
         store_postcodes = []
         distances_away = []
-        store_numbers = []
+        store_tel_numbers = []
         for i in range(len(self.billboard_postcodes)):
             self.index = i
-            store_data = self.find_data_of_nearest()
+            store_details = self.find_details_of_nearest()
                     
-            data_rows = store_data.split('\n')
+            detail_rows = store_details.split('\n')
             #extracting postcode
-            row_withpostcode = data_rows[2].split(' ')
+            row_withpostcode = detail_rows[2].split(' ')
             postcode = f'{row_withpostcode[len(row_withpostcode) - 2]} {row_withpostcode[len(row_withpostcode) - 1]}'
             store_postcodes.append(postcode)
             #extracting_distance
-            row_withdistance = data_rows[1].split(' ')
+            row_withdistance = detail_rows[1].split(' ')
             distance = f'{row_withdistance[2]} {row_withdistance[3]}'
             distances_away.append(distance)
             #extracting store telephone numbers
-            row_withnumbers = data_rows[3].split(' ')
-            number = ' '.join(row_withnumbers[8:])
-            store_numbers.append(number)
+            row_with_telnumbers = detail_rows[3].split(' ')
+            tel_numbers = ' '.join(row_with_telnumbers[8:])
+            store_tel_numbers.append(tel_numbers)
             self.progress()
             
             
         self.df['M.A.C Store Postcode'] = store_postcodes
-        self.df['M.A.C Store Tel Number'] = store_numbers
+        self.df['M.A.C Store Tel Number'] = store_tel_numbers
         self.df['Distance Away'] = distances_away
         self.df.to_excel(r'../M.A.C Billboard Data - w M.A.C Store Data.xlsx', index = False)
         return
+
+sample = BillBoardFinder()
+sample.insert_details()
