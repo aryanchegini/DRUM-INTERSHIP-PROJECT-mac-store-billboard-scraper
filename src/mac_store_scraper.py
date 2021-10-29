@@ -45,7 +45,7 @@ class MacStoreScraper:
             store_details = get_store_details.text
             store_detail_rows = store_details.split('\n')
             
-            message = f'Your nearest store is {store_name}.\nIt is {store_detail_rows[9]} away.\nIt\'s address is {" ".join(store_detail_rows[:2])}.\nFeel free to give us a call at {store_detail_rows[2]}\nWe look forward to seeing you!'
+            message = f'Your nearest store is {store_name}.\nIt is {store_detail_rows[9]} away\nIt\'s address is {" ".join(store_detail_rows[:2])}\nFeel free to give us a call at {store_detail_rows[2]}\nWe look forward to seeing you!'
             return message
         finally:
             self.driver.quit()
@@ -58,7 +58,5 @@ class MacStoreScraper:
         message = self.nearest_store_info
         message_rows = message.split('\n')
         rows_withpostcode = message_rows[2].split(' ')
-        pc = f'{rows_withpostcode[len(rows_withpostcode) - 2]} {rows_withpostcode[len(rows_withpostcode) - 1]}'
-        postcode = pc.replace('.', '')
+        postcode = f'{rows_withpostcode[len(rows_withpostcode) - 2]} {rows_withpostcode[len(rows_withpostcode) - 1]}'
         return str(postcode)
-    
